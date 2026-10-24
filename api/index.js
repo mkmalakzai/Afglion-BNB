@@ -15,8 +15,8 @@ const C = {
 const DEFAULTS = {
  appName:'Afglion-BNB', botUsername:process.env.TELEGRAM_BOT_USERNAME||'Afglion_BNB',
  announcement:'Welcome to Afglion-BNB. Deposits and withdrawals are reviewed manually.',
- usdtAfnRate:1, currencyMigrationStatus:'active', adsEnabled:false, adsBlockId:'52925', adsReward:0, adsDailyLimit:5, adsClaimMinimum:0.001,
- dailyBonus:0, dailyEnabled:false, referralPercent:10, minDeposit:0.001, minWithdraw:0.001,
+ usdtAfnRate:1, currencyMigrationStatus:'active', adsEnabled:false, adsBlockId:'', adsReward:0, adsDailyLimit:5, adsClaimMinimum:0.001,
+ dailyBonus:0, dailyEnabled:false, referralPercent:10, minDeposit:0.000001, minWithdraw:0.000001,
  forceJoinEnabled:false,forceJoinChannel:'https://t.me/yourchannel',homeChannelUrl:'https://t.me/yourchannel',
  depositNumber:'',depositContact:process.env.TELEGRAM_BOT_USERNAME||'Afglion_BNB',
  notifyApprovals:false,notificationChannel:'',
@@ -51,8 +51,8 @@ async function roleOf(id,store){
 }
 function roleRank(role){return role==='owner'?2:role==='admin'?1:0;}
 function numericId(x){return /^\d{3,20}$/.test(String(x||''));}
-function round4(x){return Math.round((Number(x)+Number.EPSILON)*10000)/10000;}
-function validMoney(x,min,max){return typeof x==='number'&&Number.isFinite(x)&&x>=min&&x<=max&&Math.abs(x-round4(x))<0.00000001;}
+function round8(x){return Math.round((Number(x)+Number.EPSILON)*100000000)/100000000;}
+function validMoney(x,min,max){return typeof x==='number'&&Number.isFinite(x)&&x>=min&&x<=max&&Math.abs(x-round8(x))<0.000000001;}
 function requireCurrencyReady(config,user){if(config.currencyMigrationStatus==='migrating')fail(503,'BNB wallet maintenance is underway. Transactions are temporarily paused.');}
 function requestBnb(item){return Number(item.amount||0);}
 function whole(x,min,max){return typeof x==='number'&&Number.isSafeInteger(x)&&x>=min&&x<=max;}
@@ -81,8 +81,8 @@ function safePackage(value){
  if(name.length<3)fail(400,'VIP package name should have at least three characters');
  const currency=value.currency||'BNB';
  if(currency!=='BNB')fail(400,'VIP package currency must be BNB');
- const price=checkAmount(value.price,0.0001,1000000),dailyReward=checkAmount(value.dailyReward,0,100000);
- if(Math.abs(price-round4(price))>1e-8||Math.abs(dailyReward-round4(dailyReward))>1e-8)fail(400,'BNB amounts allow up to 4 decimal places');
+ const price=checkAmount(value.price,0.00000001,1000000),dailyReward=checkAmount(value.dailyReward,0,100000);
+ if(Math.abs(price-round8(price))>1e-8||Math.abs(dailyReward-round8(dailyReward))>1e-8)fail(400,'BNB amounts allow up to 8 decimal places');
  if(!whole(value.days,1,365))fail(400,'VIP duration must be a whole number of days (1–365)');
  return {name,price,dailyReward,currency:'BNB',days:value.days,enabled:value.enabled!==false};
 }
@@ -197,7 +197,7 @@ async function signedIn(req,store){
  if(snap.data().banned)fail(403,'Account restricted');
  return {id,ref,snap,role};
 }
-function planFor(s,tier){const p=s.vipPackages[tier];if(!p||p.enabled===false||!validMoney(p.price,0.0001,1000000)||!validMoney(p.dailyReward,0,100000)||!whole(p.days,1,365))fail(400,'VIP package is unavailable');return p;}
+function planFor(s,tier){const p=s.vipPackages[tier];if(!p||p.enabled===false||!validMoney(p.price,0.00000001,1000000)||!validMoney(p.dailyReward,0,100000)||!whole(p.days,1,365))fail(400,'VIP package is unavailable');return p;}
 function isAdmin(id){return admins().has(id);}
 async function route(req){
  const action=String(req.query.action||'');
@@ -211,7 +211,7 @@ async function route(req){
   const expected=crypto.createHmac('sha256',process.env.TELEGRAM_BOT_TOKEN).update('afglion-adsgram-callback-v1').digest('hex');
   if(!/^\d{3,20}$/.test(userId)||provided.length!==expected.length||!crypto.timingSafeEqual(Buffer.from(provided),Buffer.from(expected)))fail(403,'Unauthorized callback');
   const ref=users.doc(userId),now=Date.now(),ss=settings(await settingRef.get());
-  if(ss.currencyMigrationStatus==='migrating'||!ss.adsEnabled||ss.adsBlockId!=='52925'||!ss.adsReward)return {ok:true,credited:false};
+  if(ss.currencyMigrationStatus==='migrating'||!ss.adsEnabled||String(ss.adsBlockId||'')==='52925'||!/^\d{3,20}$/.test(String(ss.adsBlockId||''))||!ss.adsReward)return {ok:true,credited:false};
   return await store.runTransaction(async tx=>{
    const [snap,settingDoc]=await Promise.all([tx.get(ref),tx.get(settingRef)]);
    if(!snap.exists||snap.data().banned)return {ok:true,credited:false};
@@ -278,7 +278,7 @@ async function route(req){
    const u=await tx.get(ref);
    if(!u.exists||u.data().banned)fail(403,'Account restricted');
    const ss=settings(await tx.get(settingRef));requireCurrencyReady(ss,u.data());
-   const amount=round4(Number(u.data().earningsBalance||0));
+   const amount=round8(Number(u.data().earningsBalance||0));
    const minimum=ss.currencyMigrationStatus==='active'?Number(ss.adsClaimMinimum||0.001):10;
    if(!Number.isFinite(amount)||amount<minimum)fail(409,'Earn at least '+minimum+' '+(ss.currencyMigrationStatus==='active'?'BNB':'BNB')+' before claiming');
    tx.update(ref,{
@@ -294,7 +294,7 @@ async function route(req){
  if(action==='adBegin'){
   if(req.method!=='POST')fail(405,'POST required');
   const now=Date.now(),day=new Date(now).toISOString().slice(0,10),ss=settings(await settingRef.get());
-  if(!ss.adsEnabled||ss.adsBlockId!=='52925'||ss.adsReward<=0)fail(403,'Watch & Earn is not enabled yet');
+  if(!ss.adsEnabled||String(ss.adsBlockId||'')==='52925'||!/^\d{3,20}$/.test(String(ss.adsBlockId||''))||ss.adsReward<=0)fail(403,'Create a separate AdsGram block for AFGLION BNB, then enter its ID in Admin → Ads.');
   return store.runTransaction(async tx=>{
    const [u,st]=await Promise.all([tx.get(ref),tx.get(settingRef)]);
    if(!u.exists||u.data().banned)fail(403,'Account restricted');
@@ -324,8 +324,8 @@ async function route(req){
   return {user:visibleUser(u.data(),id,role),settings:ss,
    referrals:r.docs.map(d=>({id:d.id,name:d.data().name||'Member',photoUrl:d.data().photoUrl||'',joinedAt:d.data().joinedAt||0})).sort((x,y)=>y.joinedAt-x.joinedAt),
    vipRequest:v.exists?v.data():null,
-   transactions:m.docs.map(d=>{const item=d.data();const old=ss.currencyMigrationStatus==='active'&&item.currency!=='BNB';return {...item,id:d.id,amount:old?round4(item.amount/Number(ss.migrationRate||65)):item.amount,originalAmount:item.originalAmount===undefined?item.amount:item.originalAmount,originalCurrency:item.originalCurrency||item.currency||'BNB',currency:old?'BNB':item.currency||'BNB'};}).sort((x,y)=>y.createdAt-x.createdAt),
-   activity:a.docs.map(d=>{const item=d.data();return {...item,amount:ss.currencyMigrationStatus==='active'&&item.currency!=='BNB'?round4(Number(item.amount||0)/Number(ss.migrationRate||65)):item.amount,currency:ss.currencyMigrationStatus==='active'?'BNB':'BNB'};})
+   transactions:m.docs.map(d=>{const item=d.data();const old=ss.currencyMigrationStatus==='active'&&item.currency!=='BNB';return {...item,id:d.id,amount:old?round8(item.amount/Number(ss.migrationRate||65)):item.amount,originalAmount:item.originalAmount===undefined?item.amount:item.originalAmount,originalCurrency:item.originalCurrency||item.currency||'BNB',currency:old?'BNB':item.currency||'BNB'};}).sort((x,y)=>y.createdAt-x.createdAt),
+   activity:a.docs.map(d=>{const item=d.data();return {...item,amount:ss.currencyMigrationStatus==='active'&&item.currency!=='BNB'?round8(Number(item.amount||0)/Number(ss.migrationRate||65)):item.amount,currency:ss.currencyMigrationStatus==='active'?'BNB':'BNB'};})
   };
  }
  if(action==='claim'){
@@ -382,7 +382,7 @@ async function route(req){
   const payoutRecipient=type==='withdraw'?secureString(body.recipient||body.details,300):'';
   const details=type==='deposit'?paymentReference:payoutRecipient;
   if(details.length<5)fail(400,type==='deposit'?'Provide the transaction hash or payment reference':'Provide your receiving BNB wallet address');
-  if(!validMoney(amount,0.0001,1000000))fail(400,'Enter a valid BNB amount (up to 4 decimal places)');
+  if(!validMoney(amount,0.0001,1000000))fail(400,'Enter a valid BNB amount (up to 8 decimal places)');
   const submittedMethod=secureString(body.methodId||body.method,70);
   const reqRef=store.collection(C.money).doc(),now=Date.now();
   return await store.runTransaction(async tx=>{
@@ -449,7 +449,7 @@ async function route(req){
     vipDaysClaimed:0,vipLastClaimSlot:0});
    tx.set(ref.collection('activity').doc(),{label:packageInfo.name+' VIP purchase',amount:-walletPrice,currency:'BNB',originalCurrency:packageCurrency,originalAmount:packageInfo.price,rate:null,at:now});
    const referralPct=config.referralPercent||0;
-   const award=round4(walletPrice*referralPct/100);
+   const award=round8(walletPrice*referralPct/100);
    if(linked&&linked.exists&&!linked.data().banned&&award>0){
     tx.update(linkedRef,{balance:admin.firestore.FieldValue.increment(award),totalEarned:admin.firestore.FieldValue.increment(award),
      referralEarned:admin.firestore.FieldValue.increment(award)});
@@ -468,7 +468,7 @@ async function route(req){
    store.collection(C.notices).orderBy('createdAt','desc').limit(60).get()
   ]);
   const cfgAdmin=settings(ss);
-  const members=us.docs.map(d=>({...d.data(),id:d.id})), moneyRequests=m.docs.map(d=>{const item=d.data();const old=cfgAdmin.currencyMigrationStatus==='active'&&item.currency!=='BNB';return {...item,id:d.id,amount:old?round4(item.amount/Number(cfgAdmin.migrationRate||65)):item.amount,originalAmount:item.originalAmount===undefined?item.amount:item.originalAmount,originalCurrency:item.originalCurrency||item.currency||'BNB',currency:old?'BNB':item.currency||'BNB'};}).sort((x,y)=>x.createdAt-y.createdAt);
+  const members=us.docs.map(d=>({...d.data(),id:d.id})), moneyRequests=m.docs.map(d=>{const item=d.data();const old=cfgAdmin.currencyMigrationStatus==='active'&&item.currency!=='BNB';return {...item,id:d.id,amount:old?round8(item.amount/Number(cfgAdmin.migrationRate||65)):item.amount,originalAmount:item.originalAmount===undefined?item.amount:item.originalAmount,originalCurrency:item.originalCurrency||item.currency||'BNB',currency:old?'BNB':item.currency||'BNB'};}).sort((x,y)=>x.createdAt-y.createdAt);
   const notices=noticeSnap.docs.filter(d=>d.data().status!=='sent').map(d=>({...d.data(),id:d.id}));
   return {callerRole:role,staffRoles:staffSnap.docs.map(d=>({id:d.id,role:d.data().role})),rootOwners:role==='owner'?[...admins()]:[],users:members,moneyRequests,notices,settings:settings(ss),
    stats:{members:total.data().count,vip:members.filter(u=>u.vipUntil>Date.now()).length,pending:moneyRequests.length,points:members.reduce((sum,u)=>sum+(u.balance||0),0)},sampled:members.length<total.data().count};
@@ -482,7 +482,7 @@ async function route(req){
    const announcement=secureString(body.announcement,350),botUsername=botContact(body.botUsername||process.env.TELEGRAM_BOT_USERNAME||'Afglion_BNB');
    const dailyBonus=checkAmount(body.dailyBonus,0,1000),referralPercent=checkAmount(body.referralPercent,0,50);
    const activeMoney=currentSettings.currencyMigrationStatus==='active';
-   const minDeposit=checkAmount(body.minDeposit,activeMoney?0.0001:1,100000),minWithdraw=checkAmount(body.minWithdraw,activeMoney?0.0001:1,100000);
+   const minDeposit=checkAmount(body.minDeposit,activeMoney?0.00000001:1,100000),minWithdraw=checkAmount(body.minWithdraw,activeMoney?0.00000001:1,100000);
    const forceJoinChannel=channelUrl(body.forceJoinChannel),homeChannelUrl=channelUrl(body.homeChannelUrl);
    const depositNumber=secureString(body.depositNumber,40).replace(/[^\d+\-\s()]/g,'');
    const depositContact=botContact(body.depositContact);
@@ -622,12 +622,12 @@ async function route(req){
       if(previous[field]!==undefined){
        const old=Number(previous[field]);
        if(!Number.isFinite(old))fail(409,'Invalid legacy money field: '+field);
-       update[field]=round4(old/rate);
+       update[field]=round8(old/rate);
       }
      }
      const legacyPlan=previous.vipPlanSnapshot||(previous.vipTier&&previous.vipTier!=='free'&&(previous.vipUntil||0)>Date.now()?c.vipPackages[previous.vipTier]:null);
      if(legacyPlan){
-      update.vipPlanSnapshot={...legacyPlan,price:round4(Number(legacyPlan.price||0)/rate),dailyReward:round4(Number(legacyPlan.dailyReward||0)/rate)};
+      update.vipPlanSnapshot={...legacyPlan,price:round8(Number(legacyPlan.price||0)/rate),dailyReward:round8(Number(legacyPlan.dailyReward||0)/rate)};
      }
      tx.set(backup,{userId:userDoc.id,rate,migratedAt:Date.now(),legacy:previous});
      tx.update(userRef,update);
@@ -650,9 +650,9 @@ async function route(req){
     tx.update(settingRef,{
      currencyMigrationStatus:'active',currencyMigrationFinishedAt:Date.now(),
      vipPackages:{},legacyVipPackages:c.vipPackages,
-     dailyBonus:round4(c.dailyBonus/rate),adsReward:round4(c.adsReward/rate),
-     adsClaimMinimum:round4(10/rate),
-     minDeposit:round4(c.minDeposit/rate),minWithdraw:round4(c.minWithdraw/rate)
+     dailyBonus:round8(c.dailyBonus/rate),adsReward:round8(c.adsReward/rate),
+     adsClaimMinimum:round8(10/rate),
+     minDeposit:round8(c.minDeposit/rate),minWithdraw:round8(c.minWithdraw/rate)
     });
     tx.set(store.collection(C.audits).doc(),{actor:id,kind:'usdt_migration_complete',rate,count:c.currencyMigrationCount||0,at:Date.now()});
    });
@@ -667,10 +667,12 @@ async function route(req){
   }
   if(type==='saveAdsSettings'){
    if(role!=='owner')fail(403,'Owner only');
-   const adsEnabled=body.adsEnabled===true,adsReward=Number(body.adsReward),adsDailyLimit=Number(body.adsDailyLimit);
+   const adsEnabled=body.adsEnabled===true,adsReward=Number(body.adsReward),adsDailyLimit=Number(body.adsDailyLimit),adsBlockId=secureString(body.adsBlockId,32);
+   if(!/^\d{3,20}$/.test(adsBlockId))fail(400,'Enter the numeric AdsGram block ID for this app');
+   if(adsBlockId==='52925')fail(400,'Create a separate AdsGram block for AFGLION BNB; the previous app block cannot be reused.');
    if(!validMoney(adsReward,0,10))fail(400,'Invalid ad reward');
    if(!Number.isInteger(adsDailyLimit)||adsDailyLimit<1||adsDailyLimit>20)fail(400,'Invalid daily limit');
-   await settingRef.set({adsEnabled,adsBlockId:'52925',adsReward,adsDailyLimit},{merge:true});
+   await settingRef.set({adsEnabled,adsBlockId,adsReward,adsDailyLimit},{merge:true});
    return {ok:true};
   }
   if(type==='adsCallbackUrl'){
@@ -791,7 +793,7 @@ async function route(req){
     if(!u.exists)fail(404,'Account not found');
     const rules=settings(current);requireCurrencyReady(rules,u.data());
     const amount=rules.currencyMigrationStatus==='active'?requestBnb(item,rules):item.amount;
-    if(!validMoney(amount,0.0001,1000000)||!['deposit','withdraw'].includes(item.type))fail(400,'Invalid transaction record');
+    if(!validMoney(amount,0.00000001,1000000)||!['deposit','withdraw'].includes(item.type))fail(400,'Invalid transaction record');
     const update={};
     if(item.type==='deposit'&&approve){
      update.balance=admin.firestore.FieldValue.increment(amount);
