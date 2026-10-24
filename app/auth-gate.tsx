@@ -1,8 +1,8 @@
 "use client";
 import { FormEvent, useEffect, useState } from "react";
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User } from "firebase/auth";
-import { get, ref, set } from "firebase/database";
-import { auth, db } from "@/lib/firebase";
+import { ref, set } from "firebase/database";
+import { auth, db } from "../lib/firebase";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
