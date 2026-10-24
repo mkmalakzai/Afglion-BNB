@@ -15,7 +15,7 @@ const C = {
 const DEFAULTS = {
  appName:'Afglion-BNB', botUsername:process.env.TELEGRAM_BOT_USERNAME||'Afglion_BNB',
  announcement:'Welcome to Afglion-BNB. Deposits and withdrawals are reviewed manually.',
- usdtAfnRate:1, currencyMigrationStatus:'active', adsEnabled:false, adsBlockId:'', adsReward:0, adsDailyLimit:5, adsClaimMinimum:0.001,
+ usdtAfnRate:1, currencyMigrationStatus:'active', adsEnabled:false, adsBlockId:'', adsReward:0, adsDailyLimit:5, adsClaimMinimum:0.000001,
  dailyBonus:0, dailyEnabled:false, referralPercent:10, minDeposit:0.000001, minWithdraw:0.000001,
  forceJoinEnabled:false,forceJoinChannel:'https://t.me/yourchannel',homeChannelUrl:'https://t.me/yourchannel',
  depositNumber:'',depositContact:process.env.TELEGRAM_BOT_USERNAME||'Afglion_BNB',
@@ -382,7 +382,7 @@ async function route(req){
   const payoutRecipient=type==='withdraw'?secureString(body.recipient||body.details,300):'';
   const details=type==='deposit'?paymentReference:payoutRecipient;
   if(details.length<5)fail(400,type==='deposit'?'Provide the transaction hash or payment reference':'Provide your receiving BNB wallet address');
-  if(!validMoney(amount,0.0001,1000000))fail(400,'Enter a valid BNB amount (up to 8 decimal places)');
+  if(!validMoney(amount,0.00000001,1000000))fail(400,'Enter a valid BNB amount (up to 8 decimal places)');
   const submittedMethod=secureString(body.methodId||body.method,70);
   const reqRef=store.collection(C.money).doc(),now=Date.now();
   return await store.runTransaction(async tx=>{
