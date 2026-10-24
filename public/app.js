@@ -282,7 +282,7 @@ function showMethodDestination(){
  if(copy)copy.disabled=!(m&&m.number);
  if(submit)submit.disabled=!(m&&m.number);
  var min=Number(form.dataset.minimum||0.0001),amount=document.getElementById('money-amount'),label=document.getElementById('money-amount-label');
- if(amount){amount.min=min;amount.step='0.0001';amount.placeholder='Enter BNB amount';}
+ if(amount){amount.min=min;amount.step='0.00000001';amount.placeholder='Enter BNB amount';}
  if(label)label.textContent='Amount (BNB) · Minimum '+n(min)+' BNB';
 }
 function updateMoneyMethodOptions(){
@@ -456,7 +456,7 @@ if(tab==='money'){
  '<label class="check-row"><input type="checkbox" id="admin-daily-enabled" '+(st.dailyEnabled?'checked':'')+'> Enable free daily check-in</label>'+
  '<div class="inline-fields">'+adminNumber('Daily reward ('+unit()+')','admin-daily',st.dailyBonus,0,1000)+adminNumber('VIP referral %','admin-referral',st.referralPercent,0,50)+'</div></div></details>'+
  '<details class="admin-section"><summary>'+icon('wallet')+' Deposit & withdrawals <span>⌄</span></summary><div class="admin-section-body">'+
- '<div class="inline-fields">'+adminNumber('Min deposit','admin-min-deposit',st.minDeposit,0.0001,100000)+adminNumber('Min withdraw','admin-min-withdraw',st.minWithdraw,0.0001,100000)+'</div>'+
+ '<div class="inline-fields">'+adminNumber('Min deposit','admin-min-deposit',st.minDeposit,0.00000001,100000)+adminNumber('Min withdraw','admin-min-withdraw',st.minWithdraw,0.00000001,100000)+'</div>'+
  '<label class="form-label">Deposit admin Telegram username (editable)</label><input class="field" id="admin-deposit-contact" value="'+esc(st.depositContact||'Afglion_BNB')+'">'+
  '<label class="form-label">Deposit instructions</label><textarea id="admin-deposit-inst" class="field" maxlength="500">'+esc(st.depositInstructions||'')+'</textarea>'+
  '<label class="form-label">Withdrawal instructions</label><textarea id="admin-payout-inst" class="field" maxlength="500">'+esc(st.payoutInstructions||'')+'</textarea>'+
@@ -538,7 +538,7 @@ function methodModal(key){var list=state.admin.settings.paymentMethods||[],m=key
 function updateVipPackageQuote(){
  var price=document.getElementById('package-price'),reward=document.getElementById('package-daily'),labelPrice=document.getElementById('package-price-label'),labelReward=document.getElementById('package-reward-label'),quote=document.getElementById('package-wallet-quote');
  if(!price||!reward)return;
- price.step='0.0001';price.min='0.0001';reward.step='0.0001';
+ price.step='0.00000001';price.min='0.00000001';reward.step='0.00000001';
  if(labelPrice)labelPrice.textContent='Price (BNB)';
  if(labelReward)labelReward.textContent='Daily reward (BNB)';
  var p=Number(price.value)||0,r=Number(reward.value)||0;
