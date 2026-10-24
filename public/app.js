@@ -29,7 +29,7 @@ var icons = {
 };
 function icon(n){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(icons[n]||icons.spark)+'</svg>';}
 function esc(s){return String(s == null ? '' : s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function n(v){return Number(v||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:4});}
+function n(v){return Number(v||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:8});}
 function fmtDate(ms){return ms ? new Date(ms).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';}
 function avatar(user,cls){var name=(user.name||user.firstName||'G').trim();return '<div class="'+(cls||'user-avatar')+'">'+(user.photoUrl ? '<img src="'+esc(user.photoUrl)+'" alt="">' : esc(name.charAt(0).toUpperCase()))+'</div>';}
 var state={theme:(function(){try{return localStorage.getItem('afglion_theme')==='light'?'light':'dark';}catch(_){return 'dark';}})(),adminNavOpen:false,gate:null,page:'home',data:null,token:sessionStorage.getItem('afglion_session')||'',demo:!tg || !tg.initData,loading:false,admin:null,adminTab:'overview',configMissing:false};
@@ -204,8 +204,8 @@ case 'admin-test-notice':await adminAction('testNotification',{});break;
 case 'currency-rate-save':await adminAction('saveExchangeRate',{rate:getNum('currency-rate')});break;
 case 'currency-begin':if(confirm('Convert all existing BNB balances to BNB at the saved rate? This changes live member balances. Export a Firebase backup first.')){var migrationStart=await adminAction('beginCurrencyMigration',{});if(migrationStart&&migrationStart.ok)await runCurrencyMigration();}break;
 case 'currency-continue':await runCurrencyMigration();break;
-case 'ads-save':await adminAction('saveAdsSettings',{adsEnabled:document.getElementById('ads-enabled').checked,adsReward:Number(document.getElementById('ads-reward').value),adsDailyLimit:Number(document.getElementById('ads-limit').value)});break;
-case 'ads-callback':try{var linkResult=await api('adminAction',{type:'adsCallbackUrl'});modal('AdsGram Reward URL','<p class="body-sub">Paste this confidential URL into AdsGram Block 52925 Reward URL. Do not share it publicly.</p><textarea class="field" rows="5" readonly>'+esc(linkResult.url)+'</textarea>');}catch(e){toast(e.message);}break;
+case 'ads-save':await adminAction('saveAdsSettings',{adsBlockId:document.getElementById('ads-block-id').value.trim(),adsEnabled:document.getElementById('ads-enabled').checked,adsReward:Number(document.getElementById('ads-reward').value),adsDailyLimit:Number(document.getElementById('ads-limit').value)});break;
+case 'ads-callback':try{var linkResult=await api('adminAction',{type:'adsCallbackUrl'});modal('AdsGram Reward URL','<p class="body-sub">Paste this confidential URL into the Reward URL field of this app’s AdsGram block. Do not share it publicly.</p><textarea class="field" rows="5" readonly>'+esc(linkResult.url)+'</textarea>');}catch(e){toast(e.message);}break;
 
 case 'broadcast-start':await beginBroadcast();break;
 case 'broadcast-continue':await advanceBroadcast();break;
@@ -306,7 +306,7 @@ function paymentModal(type){
  '<div class="deposit-steps"><b>Submit your payment proof</b><p>After sending BNB, enter the transaction hash below and send proof to the deposit administrator. Credit is added only after manual verification.</p>'+
  '<button type="button" class="btn btn-primary btn-block" data-action="open-link" data-url="https://t.me/'+esc(contact)+'">'+icon('external')+' Send proof to @'+esc(contact)+'</button></div>':'')+
  '<label id="money-amount-label" class="form-label">Amount (BNB) · Minimum '+n(min)+' BNB</label>'+
- '<input class="field" id="money-amount" type="number" min="'+min+'" max="1000000" step="0.0001" placeholder="Enter BNB amount" required>'+
+ '<input class="field" id="money-amount" type="number" min="'+min+'" max="1000000" step="0.00000001" placeholder="Enter BNB amount" required>'+
  (deposit?'<label class="form-label">Deposit transaction hash / sender name</label><textarea id="deposit-reference" class="field" minlength="5" maxlength="300" placeholder="Enter transaction hash or payment reference" required></textarea>':
  '<label class="form-label">Withdrawal destination BNB address (BEP20)</label><input id="withdraw-recipient" class="field" type="text" minlength="5" maxlength="300" placeholder="Enter your receiving BNB address" autocomplete="off" required><div class="alert">Enter the correct receiving address. Withdrawals are manually reviewed before payment.</div>')+
  '<div class="alert">'+(deposit?'BNB is credited only after manual verification.':'Your BNB wallet reserves the requested amount until the payout is approved or rejected.')+'</div>'+
@@ -348,7 +348,7 @@ function adminUserRows(users){
  return '<div class="admin-row"><div class="admin-row-person"><strong>'+esc(u.name||'Member')+'</strong> '+(u.banned?'<span class="badge red">BANNED</span>':'')+(staff||isRoot?'<span class="badge">'+esc(isRoot?'OWNER':staff.role.toUpperCase())+'</span>':'')+'<small>ID '+esc(u.id)+' · '+memberCurrency(u.balance,u)+' · '+esc(title)+'</small></div><button class="btn btn-ghost btn-small" data-action="admin-user" data-id="'+esc(u.id)+'">Manage</button></div>';
  }).join(''):empty('users','No members found','No matching members.');
 }
-function adminNumber(label,id,value,min,max){return '<div><label class="form-label">'+esc(label)+'</label><input class="field" id="'+id+'" type="number" min="'+min+'" max="'+max+'" step="'+('0.0001')+'" value="'+n(value).replace(/,/g,'')+'"></div>';}
+function adminNumber(label,id,value,min,max){return '<div><label class="form-label">'+esc(label)+'</label><input class="field" id="'+id+'" type="number" min="'+min+'" max="'+max+'" step="'+('0.00000001')+'" value="'+n(value).replace(/,/g,'')+'"></div>';}
 function adminShortcut(tab,title,description,ic){
  return '<button class="admin-shortcut" data-action="admin-tab" data-tab="'+tab+'"><span class="action-icon">'+icon(ic)+'</span><div><strong>'+esc(title)+'</strong><small>'+esc(description)+'</small></div>'+icon('arrow')+'</button>';
 }
@@ -388,9 +388,10 @@ if(tab==='money'){
  }
  if(tab==='ads'){
  var cfg=a.settings||{};
- html+='<div class="admin-callout"><b>AdsGram · Rewarded Ads</b><p>Ad Block 52925. Rewards are credited only after the secure AdsGram server callback.</p></div>'+
- '<div class="panel"><label class="check-row"><input type="checkbox" id="ads-enabled" '+(cfg.adsEnabled?'checked':'')+'> Enable Watch & Earn</label>'+
- '<label class="form-label">Reward per verified ad ('+unit()+')</label><input type="number" class="field" id="ads-reward" min="0" max="10" step="'+('0.0001')+'" value="'+esc(cfg.adsReward||0)+'">'+
+ html+='<div class="admin-callout"><b>AdsGram · Rewarded Ads</b><p>Use the block ID created for this AFGLION BNB Mini App. A block for another bot/app may not work here. Rewards are credited only after the secure AdsGram server callback.</p></div>'+
+ '<div class="panel"><label class="form-label">AdsGram Block ID (this app)</label><input type="text" inputmode="numeric" pattern="[0-9]{3,20}" class="field" id="ads-block-id" maxlength="20" value="'+esc(cfg.adsBlockId==='52925'?'':(cfg.adsBlockId||''))+'" placeholder="Enter this app block ID" required>'+
+ '<label class="check-row"><input type="checkbox" id="ads-enabled" '+(cfg.adsEnabled?'checked':'')+'> Enable Watch & Earn</label>'+
+ '<label class="form-label">Reward per verified ad ('+unit()+')</label><input type="number" class="field" id="ads-reward" min="0" max="10" step="'+('0.00000001')+'" value="'+esc(cfg.adsReward||0)+'">'+
  '<label class="form-label">Daily ad limit</label><input type="number" class="field" id="ads-limit" min="1" max="20" value="'+esc(cfg.adsDailyLimit||5)+'">'+
  '<p class="muted-note">Start with a small reward based on actual AdsGram earnings. No automatic cash payouts are enabled.</p>'+
  '<button class="btn btn-primary btn-block" data-action="ads-save">Save Ads Settings</button>'+
@@ -492,8 +493,8 @@ function openUserModal(id){var u=state.admin.users.find(function(x){return x.id=
  var roleLabel=isRoot?'Root owner':staff?staff.role:'Member';
  modal('Manage member','<div class="user-row" style="margin-top:16px">'+avatar(u)+'<div class="user-main"><strong>'+esc(u.name)+'</strong><small>ID '+esc(u.id)+' · '+esc(roleLabel)+'</small></div></div>'+
  '<div class="admin-balance-overview"><small>Available balance</small><strong>'+memberCurrency(u.balance,u)+'</strong></div>'+
- '<div class="inline-fields"><div><label class="form-label">Add balance ('+unit()+')</label><input class="field" id="user-credit" type="number" min="0" max="100000" step="'+('0.0001')+'" value="0"></div>'+
- '<div><label class="form-label">Deduct balance ('+unit()+')</label><input class="field" id="user-deduct" type="number" min="0" max="100000" step="'+('0.0001')+'" value="0"></div></div>'+
+ '<div class="inline-fields"><div><label class="form-label">Add balance ('+unit()+')</label><input class="field" id="user-credit" type="number" min="0" max="100000" step="'+('0.00000001')+'" value="0"></div>'+
+ '<div><label class="form-label">Deduct balance ('+unit()+')</label><input class="field" id="user-deduct" type="number" min="0" max="100000" step="'+('0.00000001')+'" value="0"></div></div>'+
  '<div class="admin-callout">Only one balance adjustment at a time. Deductions cannot make the balance negative.</div>'+
  '<label class="form-label">VIP membership</label><select class="field" id="user-tier">'+tierOptions+'</select>'+
  '<label class="form-label">Account status</label><select class="field" id="user-ban"><option value="false" '+(!u.banned?'selected':'')+'>Active</option><option value="true" '+(u.banned?'selected':'')+'>Banned</option></select>'+
@@ -549,8 +550,8 @@ function packageModal(key){
  modal(key?'Edit VIP package':'Create VIP package',
  '<form id="package-form" data-id="'+esc(key||'')+'"><label class="form-label">Package name</label><input class="field" id="package-name" maxlength="45" minlength="3" value="'+esc(p&&p.name||'')+'" placeholder="e.g. Diamond VIP" required>'+
  '<input type="hidden" id="package-currency" value="BNB">'+
- '<div class="inline-fields"><div><label class="form-label" id="package-price-label">Price (BNB)</label><input class="field" id="package-price" type="number" min="0.0001" max="1000000" step="0.0001" value="'+(p?p.price:0.01)+'" required></div>'+
- '<div><label class="form-label" id="package-reward-label">Daily reward (BNB)</label><input class="field" id="package-daily" type="number" min="0" max="100000" step="0.0001" value="'+(p?p.dailyReward:0.0005)+'" required></div></div>'+
+ '<div class="inline-fields"><div><label class="form-label" id="package-price-label">Price (BNB)</label><input class="field" id="package-price" type="number" min="0.00000001" max="1000000" step="0.00000001" value="'+(p?p.price:0.01)+'" required></div>'+
+ '<div><label class="form-label" id="package-reward-label">Daily reward (BNB)</label><input class="field" id="package-daily" type="number" min="0" max="100000" step="0.00000001" value="'+(p?p.dailyReward:0.0005)+'" required></div></div>'+
  '<div class="alert" id="package-wallet-quote"></div>'+
  '<label class="form-label">Duration in days</label><input class="field" id="package-days" type="number" min="1" max="365" step="1" value="'+(p?p.days:30)+'" required>'+
  '<label class="form-label">Visibility</label><select class="field" id="package-enabled"><option value="yes" '+(!p||p.enabled!==false?'selected':'')+'>Visible to users</option><option value="no" '+(p&&p.enabled===false?'selected':'')+'>Hidden</option></select>'+
