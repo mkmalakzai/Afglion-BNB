@@ -14,7 +14,7 @@ const C = {
 const DEFAULTS = {
  appName:'Afglion-BNB', botUsername:process.env.TELEGRAM_BOT_USERNAME||'Afglion_BNB',
  announcement:'Welcome to Afglion-BNB. Deposits and withdrawals are reviewed manually.',
- usdtAfnRate:1, currencyMigrationStatus:'active', adsEnabled:false, adsBlockId:'52925', adsReward:0, adsDailyLimit:5,
+ usdtAfnRate:1, currencyMigrationStatus:'active', adsEnabled:false, adsBlockId:'52925', adsReward:0, adsDailyLimit:5, adsClaimMinimum:0.001,
  dailyBonus:0, dailyEnabled:false, referralPercent:10, minDeposit:0.001, minWithdraw:0.001,
  forceJoinEnabled:false,forceJoinChannel:'https://t.me/yourchannel',homeChannelUrl:'https://t.me/yourchannel',
  depositNumber:'',depositContact:process.env.TELEGRAM_BOT_USERNAME||'Afglion_BNB',
@@ -200,7 +200,7 @@ function planFor(s,tier){const p=s.vipPackages[tier];if(!p||p.enabled===false||!
 function isAdmin(id){return admins().has(id);}
 async function route(req){
  const action=String(req.query.action||'');
- if(action==='health')return {ok:true,backendConfigured:ready(),expectedFirebaseProject:'afglion-47b07'};
+ if(action==='health')return {ok:true,backendConfigured:ready(),expectedFirebaseProject:'afglion-bnb'};
  if(!ready())fail(503,'Backend not configured. Add TELEGRAM_BOT_TOKEN and FIREBASE_SERVICE_ACCOUNT_JSON on Vercel.');
  const store=db(),users=store.collection(C.users),settingRef=store.collection(C.settings).doc('global');
  const body=req.body||{};
@@ -253,7 +253,7 @@ async function route(req){
    });
    if(eligible){
     tx.update(parentRef,{referralCount:admin.firestore.FieldValue.increment(1)});
-    tx.set(store.collection('veloraReferralEvents').doc(id),{referrerId:inviter,refereeId:id,bonus:0,createdAt:now});
+    tx.set(store.collection('bnbReferralEvents').doc(id),{referrerId:inviter,refereeId:id,bonus:0,createdAt:now});
    }
   });
   const snapshot=await userRef.get();
@@ -278,7 +278,7 @@ async function route(req){
    if(!u.exists||u.data().banned)fail(403,'Account restricted');
    const ss=settings(await tx.get(settingRef));requireCurrencyReady(ss,u.data());
    const amount=round4(Number(u.data().earningsBalance||0));
-   const minimum=ss.currencyMigrationStatus==='active'?Number(ss.adsClaimMinimum||round4(10/65)):10;
+   const minimum=ss.currencyMigrationStatus==='active'?Number(ss.adsClaimMinimum||0.001):10;
    if(!Number.isFinite(amount)||amount<minimum)fail(409,'Earn at least '+minimum+' '+(ss.currencyMigrationStatus==='active'?'BNB':'BNB')+' before claiming');
    tx.update(ref,{
     earningsBalance:0,
