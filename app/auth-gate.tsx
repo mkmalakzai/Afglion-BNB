@@ -1,51 +1,60 @@
 "use client";
-import { FormEvent, useEffect, useState } from "react";
-import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User } from "firebase/auth";
-import { ref, set } from "firebase/database";
-import { auth, db } from "../lib/firebase";
+import { useEffect, useState } from "react";
+
+type TelegramUser = { id: number; first_name: string; last_name: string; username: string; photo_url?: string; isAdmin: boolean };
+declare global { interface Window { Telegram?: { WebApp?: { initData: string; ready: () => void; expand: () => void } } } }
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<TelegramUser | null>(null);
   const [checking, setChecking] = useState(true);
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => onAuthStateChanged(auth, (next) => { setUser(next); setChecking(false); }), []);
+  useEffect(() => {
+    let stopped = false;
+    async function restore() {
+      try {
+        const response = await fetch("/api/auth/telegram", { credentials: "include" });
+        if (response.ok) {
+          const data = await response.json();
+          if (!stopped && data.user) { setUser(data.user); setChecking(false); return true; }
+        }
+      } catch {}
+      return false;
+    }
+    async function boot() {
+      if (await restore()) return;
+      let tries = 0;
+      const timer = window.setInterval(async () => {
+        tries++;
+        const webApp = window.Telegram?.WebApp;
+        if (webApp?.initData) {
+          window.clearInterval(timer);
+          try {
+            webApp.ready(); webApp.expand();
+            const response = await fetch("/api/auth/telegram", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ initData: webApp.initData }) });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Telegram verification failed.");
+            if (!stopped) { setUser(data.user); setChecking(false); }
+          } catch (e) {
+            if (!stopped) { setError(e instanceof Error ? e.message : "Telegram login failed."); setChecking(false); }
+          }
+        } else if (tries >= 30) {
+          window.clearInterval(timer);
+          if (!stopped) { setError("دا Mini App د ټیلیګرام له دننه پرانیزه. په عادي براوزر کې د ټیلیګرام حساب تایید نه کېږي."); setChecking(false); }
+        }
+      }, 300);
+    }
+    boot();
+    return () => { stopped = true; };
+  }, []);
 
-  async function submit(e: FormEvent) {
-    e.preventDefault(); setBusy(true); setError("");
-    try {
-      if (mode === "signup") {
-        const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
-        await set(ref(db, `users/${credential.user.uid}`), {
-          uid: credential.user.uid, email: credential.user.email, createdAt: Date.now(), status: "active"
-        });
-      } else {
-        await signInWithEmailAndPassword(auth, email.trim(), password);
-      }
-    } catch (err) {
-      const code = (err as {code?: string}).code || "";
-      setError(code.includes("email-already-in-use") ? "دا ایمیل مخکې ثبت شوی." :
-        code.includes("invalid-credential") || code.includes("wrong-password") ? "ایمیل یا پاسورډ ناسم دی." :
-        code.includes("weak-password") ? "پاسورډ لږ تر لږه ۶ توري ولري." :
-        code.includes("permission-denied") ? "د Database امنیتي Rules اجازه نه ورکوي؛ Rules باید تنظیم شي." :
-        "ننوتل بریالي نه شول. د Firebase Authentication او Database تنظیمات وګوره.");
-    } finally { setBusy(false); }
+  async function logout() {
+    await fetch("/api/auth/telegram", { method: "DELETE", credentials: "include" });
+    setUser(null);
+    setError("د بیا ننوتلو لپاره Mini App د ټیلیګرام له بوټ څخه پرانیزه.");
   }
 
-  if (checking) return <div className="auth-screen"><div className="auth-card">AFGlion BNB<br/><small>Checking secure session…</small></div></div>;
-  if (!user) return <main className="auth-screen"><form className="auth-card" onSubmit={submit}>
-    <div className="auth-logo">✦</div><p className="auth-eyebrow">AFGLION BNB</p>
-    <h1>{mode === "login" ? "بېرته ښه راغلاست" : "نوی حساب جوړ کړه"}</h1>
-    <p className="auth-sub">د خپل حساب لپاره ایمیل او پاسورډ وکاروه.</p>
-    <label>ایمیل<input type="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com"/></label>
-    <label>پاسورډ<input type="password" autoComplete={mode==="login"?"current-password":"new-password"} minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} placeholder="لږ تر لږه ۶ توري"/></label>
-    {error && <p className="auth-error">{error}</p>}
-    <button className="auth-submit" disabled={busy}>{busy ? "مهرباني، انتظار…" : mode==="login" ? "ننوتل" : "حساب جوړول"}</button>
-    <p className="auth-switch">{mode==="login"?"حساب نه لرې؟":"حساب لرې؟"} <button type="button" onClick={()=>{setMode(mode==="login"?"signup":"login");setError("");}}>{mode==="login"?"ثبت نام":"ننوتل"}</button></p>
-  </form></main>;
-  return <><div className="auth-userbar"><span>{user.email}</span><button onClick={()=>signOut(auth)}>وتل</button></div>{children}</>;
+  if (checking) return <div className="auth-screen"><div className="auth-card"><div className="auth-logo">✦</div><p className="auth-eyebrow">AFGLION BNB</p><h1>ټیلیګرام حساب تاییدېږي…</h1><p className="auth-sub">مهرباني وکړئ څو شېبې انتظار وکړئ.</p></div></div>;
+  if (!user) return <main className="auth-screen"><section className="auth-card"><div className="auth-logo">✦</div><p className="auth-eyebrow">AFGLION BNB</p><h1>د ټیلیګرام له لارې ننوتل</h1><p className="auth-sub">{error || "د خپل ټیلیګرام بوټ له لارې Mini App پرانیزه."}</p><p className="auth-sub">حساب په اتومات ډول ستا د تایید شوي Telegram ID له مخې پېژندل کېږي؛ ایمیل او پاسورډ ته اړتیا نشته.</p><a className="auth-submit" href="https://t.me/" style={{display:"grid",placeItems:"center",textDecoration:"none"}}>بېرته ټیلیګرام ته</a></section></main>;
+  return <><div className="auth-userbar"><span>{user.first_name} {user.last_name} {user.username ? "@"+user.username : ""} · Telegram ID: {user.id}</span><button onClick={logout}>وتل</button></div>{children}</>;
 }
