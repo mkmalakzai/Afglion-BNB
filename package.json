@@ -5,14 +5,16 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "check": "node --check public/app.js && node --check api/index.js && node --check api/telegram.js && node --check public/firebase-config.js"
   },
   "dependencies": {
     "firebase": "^12.4.0",
     "next": "^15.5.9",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "lucide-react": "^0.468.0"
+    "lucide-react": "^0.468.0",
+    "firebase-admin": "^13.0.0"
   },
   "devDependencies": {
     "typescript": "^5.7.2",
@@ -22,5 +24,6 @@
     "tailwindcss": "^3.4.17",
     "postcss": "^8.5.6",
     "autoprefixer": "^10.4.21"
-  }
+  },
+  "description": "Afglion-BNB Telegram Mini App: BNB wallet, manually reviewed deposits and withdrawals, VIP rewards, referrals, AdsGram, and admin controls."
 }
