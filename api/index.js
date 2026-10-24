@@ -6,6 +6,7 @@
 'use strict';
 const crypto = require('node:crypto');
 const admin = require('firebase-admin');
+const { getFirestore } = require('firebase-admin/firestore');
 const DAY = 86400000;
 const C = {
  users:'bnbUsers', settings:'bnbSettings', requests:'bnbVipRequests',
@@ -39,7 +40,7 @@ function db(){
   if(key.private_key)key.private_key=key.private_key.replace(/\\n/g,'\n');
   admin.initializeApp({credential:admin.credential.cert(key)});
  }
- return admin.firestore();
+ return getFirestore(admin.app(), 'afglion-bnb');
 }
 function admins(){return new Set((process.env.ADMIN_TELEGRAM_IDS||process.env.TELEGRAM_ADMIN_IDS||'').split(',').map(x=>x.trim()).filter(Boolean));}
 function secureString(x,max){return typeof x==='string'?x.trim().slice(0,max):'';}
