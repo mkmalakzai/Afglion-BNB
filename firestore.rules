@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Wallet data is accessed only through the trusted Vercel API and Firebase Admin SDK.
+    // Keep client-side reads and writes disabled for financial records.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
