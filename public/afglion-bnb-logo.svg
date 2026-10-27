@@ -1,1 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title"><title id="title">AFGLION BNB Gold Diamond Emblem</title><defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1a8"/><stop offset=".48" stop-color="#f5b82e"/><stop offset="1" stop-color="#b86b08"/></linearGradient><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#171b22"/><stop offset="1" stop-color="#080a0e"/></linearGradient></defs><rect x="8" y="8" width="240" height="240" rx="56" fill="url(#bg)" stroke="#d99b21" stroke-opacity=".45" stroke-width="2"/><path d="M128 28 210 76v104l-82 48-82-48V76z" fill="none" stroke="url(#gold)" stroke-width="5"/><path d="m128 52 58 34v84l-58 34-58-34V86z" fill="#f0ad24" fill-opacity=".08" stroke="url(#gold)" stroke-width="2"/><g fill="url(#gold)"><path d="m128 70 19 19-19 19-19-19z"/><path d="m93 105 19 19-19 19-19-19z"/><path d="m163 105 19 19-19 19-19-19z"/><path d="m128 140 19 19-19 19-19-19z"/><path d="m128 105 19 19-19 19-19-19z"/></g><path d="M82 184h92" stroke="url(#gold)" stroke-width="3" stroke-linecap="round"/><text x="128" y="211" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="800" letter-spacing="3" fill="#ffe7a0">BNB</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+<title id="title">AFGLION BNB Golden Lion Crest</title><desc id="desc">A distinctive golden geometric lion inside a dark premium shield.</desc>
+<defs>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff4b8"/><stop offset=".38" stop-color="#f6c34d"/><stop offset=".72" stop-color="#d99520"/><stop offset="1" stop-color="#8e520c"/></linearGradient>
+ <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#202a39"/><stop offset="1" stop-color="#070b12"/></linearGradient>
+ <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect x="7" y="7" width="242" height="242" rx="58" fill="url(#dark)" stroke="url(#gold)" stroke-width="3"/>
+<path d="M128 21 216 70v92l-88 73-88-73V70z" fill="#0b1019" stroke="#c99027" stroke-opacity=".6" stroke-width="2"/>
+<path d="M128 39 151 51 177 48 188 71 207 91 194 116 198 142 173 156 158 180 128 172 98 180 83 156 58 142 62 116 49 91 68 71 79 48 105 51z" fill="url(#gold)" fill-opacity=".16" stroke="url(#gold)" stroke-width="3" stroke-linejoin="round"/>
+<g stroke="url(#gold)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)">
+ <path d="M83 91 68 72 99 78 114 68 128 75 142 68 157 78 188 72 173 91"/>
+ <path d="M83 91 91 112 85 134 102 151 128 161 154 151 171 134 165 112 173 91"/>
+ <path d="M96 105 111 99 121 108"/>
+ <path d="M160 105 145 99 135 108"/>
+ <path d="M128 92 118 113 128 122 138 113z"/>
+ <path d="M111 133 128 141 145 133"/>
+ <path d="M111 133 104 125 M145 133 152 125"/>
+</g>
+<path d="M113 54 128 45 143 54 128 68z" fill="url(#gold)"/>
+<text x="128" y="211" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="900" letter-spacing="4" fill="#fff0ad">BNB</text>
+</svg>
