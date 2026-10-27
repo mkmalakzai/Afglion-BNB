@@ -42,7 +42,7 @@ function data(){return state.data||demoData;}
 function goldTitle(title,desc){return '<div class="page-intro"><div class="eyebrow">AFGLION BNB EXCLUSIVE</div><h1 class="page-title">'+title+'</h1><p class="body-sub">'+desc+'</p></div>';}
 function section(t,action,label){return '<div class="section-head"><h2>'+t+'</h2>'+(action?'<button class="text-button" data-action="'+action+'">'+(label||'View all')+icon('arrow')+'</button>':'')+'</div>';}
 
-function logoMark(extraClass){return '<span class="brand-logo-frame '+(extraClass||'')+'"><img src="/afglion-bnb-logo.svg" width="46" height="46" alt="AFGLION BNB lion logo" loading="eager"></span>';}
+function logoMark(extraClass){return '<span class="brand-logo-frame '+(extraClass||'')+'"><img src="/afglion-bnb-logo.svg?v=20261027-golden-lion" width="46" height="46" alt="AFGLION BNB lion logo" loading="eager"></span>';}
 var splashStarted=Date.now(),splashProgress=8,splashInterval=null,splashWatchdog=null,splashFinished=false;
 function splashElements(){return {loader:document.getElementById('afg-loader'),fill:document.getElementById('afg-loading-fill'),percent:document.getElementById('afg-loading-percent'),status:document.getElementById('afg-loading-status')};}
 function splashStage(label,target){
@@ -131,7 +131,7 @@ function profile(){var u=user();return '<div class="view">'+goldTitle('Your prof
 section('Account')+'<div class="settings-list"><button class="settings-item" data-action="edit-name"><span class="settings-icon">'+icon('edit')+'</span><span class="settings-text">Display name</span><span class="settings-trail">'+icon('arrow')+'</span></button><button class="settings-item" data-page="wallet"><span class="settings-icon">'+icon('wallet')+'</span><span class="settings-text">Wallet · Deposit / Withdraw</span><span class="settings-trail">'+icon('arrow')+'</span></button><button class="settings-item" data-page="vip"><span class="settings-icon">'+icon('crown')+'</span><span class="settings-text">VIP status</span><span class="settings-trail"><span class="badge">'+esc(vipName(u).toUpperCase())+'</span>'+icon('arrow')+'</span></button><button class="settings-item" data-action="history"><span class="settings-icon">'+icon('clock')+'</span><span class="settings-text">Earnings history</span><span class="settings-trail">'+icon('arrow')+'</span></button></div>'+
 section('Appearance & more')+'<div class="settings-list"><button class="settings-item" data-action="theme-toggle"><span class="settings-icon">'+icon('settings')+'</span><span class="settings-text">'+(state.theme==='dark'?'Switch to light mode':'Switch to dark mode')+'</span><span class="settings-trail">'+icon('arrow')+'</span></button><button class="settings-item" data-action="help"><span class="settings-icon">'+icon('info')+'</span><span class="settings-text">Help & information</span><span class="settings-trail">'+icon('arrow')+'</span></button><button class="settings-item" data-action="refresh"><span class="settings-icon">'+icon('refresh')+'</span><span class="settings-text">Refresh account</span><span class="settings-trail">'+icon('arrow')+'</span></button>'+(u.isAdmin?'<button class="settings-item" data-action="open-admin"><span class="settings-icon">'+icon('shield')+'</span><span class="settings-text">Admin console</span><span class="settings-trail">'+icon('arrow')+'</span></button>':'')+'</div>'+
 '<div class="muted-note" style="text-align:center;margin-top:20px">Member since '+fmtDate(u.joinedAt)+'</div>'+footer()+'</div>';}
-function footer(){return '<div class="footer-sign"><img src="/afglion-bnb-logo.svg" width="23" height="23" alt="AFGLION BNB"><span>AFGLION BNB MEMBERS CLUB</span></div>';}
+function footer(){return '<div class="footer-sign"><img src="/afglion-bnb-logo.svg?v=20261027-golden-lion" width="23" height="23" alt="AFGLION BNB"><span>AFGLION BNB MEMBERS CLUB</span></div>';}
 
 function joinGate(){setTheme();var gate=state.gate||{joinUrl:'https://t.me/yourchannel'};root.className='app-shell';root.innerHTML='<header class="topbar"><div class="brand-wrap">'+logoMark()+'<div><div class="brand-name">AFGLION BNB</div><div class="brand-kicker">MEMBERS CLUB</div></div></div></header><div class="join-screen"><div class="join-art">'+icon('users')+'</div><span class="eyebrow">ONE QUICK STEP</span><h1>Join our channel<br>to continue.</h1><p>Membership is verified through Telegram. Join the required channel to unlock Afglion-BNB.</p><button class="btn btn-primary btn-block join-primary" data-action="open-link" data-url="'+esc(gate.joinUrl)+'">'+icon('external')+' Join channel</button><button class="btn btn-outline btn-block" data-action="check-join">'+icon('check')+' Check Joined</button><div class="alert">'+icon('shield')+' '+esc(gate.joinIssue||'After joining, tap Check Joined. The bot must be a channel administrator for reliable checks.')+'</div></div>';}
 var adBusy=false;
@@ -233,7 +233,7 @@ case 'admin-tab':state.adminTab=target.dataset.tab;state.adminNavOpen=false;rend
 case 'admin-user':openUserModal(target.dataset.id);break;
 
 case 'brand-download':downloadBrandPng(target.dataset.type);break;
-case 'brand-copy':await copyValue(location.origin+'/afglion-bnb-brand.svg');break;
+case 'brand-copy':await copyValue(location.origin+'/afglion-bnb-brand.svg?v=20261027-golden-lion');break;
 case 'admin-add-method':methodModal('');break;
 case 'admin-edit-method':methodModal(target.dataset.id);break;
 case 'admin-delete-method':if(confirm('Delete this receiving method? Existing transaction history is preserved.'))await adminAction('deletePaymentMethod',{methodId:target.dataset.id});break;
@@ -247,7 +247,7 @@ case 'admin-save-user':saveAdminUser();break;
 
 
 function downloadBrandPng(kind){
- var isWordmark=kind==='wordmark',asset=isWordmark?'/afglion-bnb-brand.svg':'/afglion-bnb-logo.svg';
+ var isWordmark=kind==='wordmark',asset=isWordmark?'/afglion-bnb-brand.svg?v=20261027-golden-lion':'/afglion-bnb-logo.svg?v=20261027-golden-lion';
  var img=new Image();
  img.onload=function(){
   var canvas=document.createElement('canvas');
@@ -442,7 +442,7 @@ if(tab==='money'){
  '<div class="brand-kit-preview"><img src="/afglion-bnb-brand.svg" alt="Official AFGLION BNB brand logo"></div>'+
  '<div class="brand-kit-actions"><button class="btn btn-primary btn-block" data-action="brand-download" data-type="wordmark">Download full logo PNG</button><button class="btn btn-outline btn-block" data-action="brand-download" data-type="icon">Download app icon PNG</button>'+
  '<button class="btn btn-ghost btn-block" data-action="brand-copy">Copy public logo link</button></div>'+
- '<div class="brand-kit-small"><img src="/afglion-bnb-logo.svg" width="100" height="100" alt="Official AFGLION BNB crest"><p>One official symbol. App icon, website, social media, watermark.</p></div>';
+ '<div class="brand-kit-small"><img src="/afglion-bnb-logo.svg?v=20261027-golden-lion" width="100" height="100" alt="Official AFGLION BNB crest"><p>One official symbol. App icon, website, social media, watermark.</p></div>';
  }
  if(tab==='settings'){
  var st=a.settings;
