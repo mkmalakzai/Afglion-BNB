@@ -1,1 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" role="img" aria-labelledby="title"><title id="title">AFGLION BNB Members Club</title><defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff1a8"/><stop offset=".5" stop-color="#f5b82e"/><stop offset="1" stop-color="#b86b08"/></linearGradient></defs><rect width="600" height="180" rx="28" fill="#090c12"/><g transform="translate(22 18)"><rect width="144" height="144" rx="34" fill="#141920" stroke="#d99b21" stroke-opacity=".5"/><path d="m72 18 49 29v50l-49 29-49-29V47z" fill="none" stroke="url(#gold)" stroke-width="4"/><g fill="url(#gold)"><path d="m72 35 12 12-12 12-12-12z"/><path d="m48 59 12 12-12 12-12-12z"/><path d="m96 59 12 12-12 12-12-12z"/><path d="m72 83 12 12-12 12-12-12z"/></g></g><text x="190" y="82" font-family="Arial,sans-serif" font-size="42" font-weight="900" letter-spacing="2" fill="#f7f2e5">AFGLION</text><text x="190" y="126" font-family="Arial,sans-serif" font-size="30" font-weight="800" letter-spacing="7" fill="url(#gold)">BNB</text><text x="190" y="151" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="3" fill="#9aa4b2">MEMBERS CLUB</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 210" role="img" aria-labelledby="title desc">
+<title id="title">AFGLION BNB Members Club — Golden Lion</title><desc id="desc">Premium dark navy and gold AFGLION BNB wordmark with a geometric lion crest.</desc>
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4b8"/><stop offset=".4" stop-color="#f6c34d"/><stop offset=".75" stop-color="#d99520"/><stop offset="1" stop-color="#8e520c"/></linearGradient><linearGradient id="dark" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#202a39"/><stop offset="1" stop-color="#070b12"/></linearGradient></defs>
+<rect width="720" height="210" rx="30" fill="#080d15"/>
+<path d="M0 176H720" stroke="#d99b2b" stroke-opacity=".22"/>
+<g transform="translate(20 12) scale(.72)">
+<rect x="7" y="7" width="242" height="242" rx="58" fill="url(#dark)" stroke="url(#gold)" stroke-width="3"/>
+<path d="M128 21 216 70v92l-88 73-88-73V70z" fill="#0b1019" stroke="#c99027" stroke-opacity=".6" stroke-width="2"/>
+<path d="M128 39 151 51 177 48 188 71 207 91 194 116 198 142 173 156 158 180 128 172 98 180 83 156 58 142 62 116 49 91 68 71 79 48 105 51z" fill="url(#gold)" fill-opacity=".16" stroke="url(#gold)" stroke-width="3" stroke-linejoin="round"/>
+<g stroke="url(#gold)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M83 91 68 72 99 78 114 68 128 75 142 68 157 78 188 72 173 91"/><path d="M83 91 91 112 85 134 102 151 128 161 154 151 171 134 165 112 173 91"/><path d="M96 105 111 99 121 108"/><path d="M160 105 145 99 135 108"/><path d="M128 92 118 113 128 122 138 113z"/><path d="M111 133 128 141 145 133"/></g>
+<path d="M113 54 128 45 143 54 128 68z" fill="url(#gold)"/><text x="128" y="211" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="900" letter-spacing="4" fill="#fff0ad">BNB</text>
+</g>
+<text x="222" y="92" font-family="Arial,sans-serif" font-size="48" font-weight="900" letter-spacing="2.5" fill="#f7f2e5">AFGLION</text>
+<text x="224" y="137" font-family="Arial,sans-serif" font-size="31" font-weight="900" letter-spacing="10" fill="url(#gold)">BNB</text>
+<path d="M224 153H456" stroke="url(#gold)" stroke-width="1.5" stroke-opacity=".7"/>
+<text x="224" y="177" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="4" fill="#a7b1c0">MEMBERS CLUB</text>
+<text x="555" y="184" font-family="Arial,sans-serif" font-size="10" font-weight="700" letter-spacing="2" fill="#657182" text-anchor="middle">EST. AFGLION</text>
+</svg>
